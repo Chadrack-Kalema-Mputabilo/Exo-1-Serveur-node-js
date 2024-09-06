@@ -1,0 +1,68 @@
+Pour mettre en place la journalisation d'un site web avec Node.js, vous pouvez suivre les étapes ci-dessous. Nous allons créer un serveur simple avec deux routes (`/` pour la page d'accueil et `/help` pour l'aide) et enregistrer chaque visite dans un fichier `.txt`.
+
+### Étapes pour la journalisation
+
+1. **Installer Node.js et les dépendances nécessaires** :
+   Assurez-vous que Node.js est installé sur votre machine. Ensuite, créez un nouveau projet et installez le module `fs` (intégré dans Node.js) pour écrire dans des fichiers.
+
+   ```bash
+   mkdir journalisation-site
+   cd journalisation-site
+   npm init -y
+   ```
+
+2. **Créer le fichier du serveur** :
+   Créez un fichier `server.js` et ajoutez le code suivant :
+
+   ```javascript
+   const http = require('http');
+   const fs = require('fs');
+   const path = require('path');
+
+   const logFilePath = path.join(__dirname, 'visits.log');
+
+   const requestListener = (req, res) => {
+       const currentTime = new Date().toISOString();
+       const logEntry = `${currentTime} - Visite: ${req.url}\n`;
+
+       // Écrire dans le fichier
+       fs.appendFile(logFilePath, logEntry, (err) => {
+           if (err) {
+               console.error('Erreur lors de l\'écriture dans le fichier:', err);
+           }
+       });
+
+       // Gérer les routes
+       if (req.url === '/') {
+           res.writeHead(200, { 'Content-Type': 'text/html' });
+           res.end('<h1>Bienvenue sur la page d\'accueil</h1>');
+       } else if (req.url === '/help') {
+           res.writeHead(200, { 'Content-Type': 'text/html' });
+           res.end('<h1>Voici la page d\'aide</h1>');
+       } else {
+           res.writeHead(404, { 'Content-Type': 'text/html' });
+           res.end('<h1>404 - Page non trouvée</h1>');
+       }
+   };
+
+   const server = http.createServer(requestListener);
+
+   const PORT = 3000;
+   server.listen(PORT, () => {
+       console.log(`Serveur en cours d'exécution sur http://localhost:${PORT}`);
+   });
+   ```
+
+3. **Exécuter le serveur** :
+   Dans le terminal, exécutez la commande suivante pour démarrer votre serveur :
+
+   ```bash
+   node server.js
+   ```
+
+4. **Tester le serveur** :
+   Ouvrez votre navigateur et visitez `http://localhost:3000/` et `http://localhost:3000/help`. Chaque fois que vous accédez à ces routes, une entrée sera ajoutée au fichier `visits.log`.
+
+### Résumé
+
+Ce code met en place un serveur Node.js basique avec deux routes. Chaque visite est enregistrée dans un fichier texte `visits.log`. Vous pouvez étendre cette logique pour ajouter d'autres fonctionnalités selon vos besoins.
